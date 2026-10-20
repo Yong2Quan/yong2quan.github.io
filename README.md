@@ -22,6 +22,7 @@ compile and no dependencies to install.
 ## 📂 Repository Structure
 
 * `index.html`; The entire site: markup, styles and scripts.
+* `/assets`; Site images
 * `/shots`; Screenshots of the projects shown in the carousel.
 * `.nojekyll`; Tells GitHub Pages to serve the files as-is, skipping Jekyll.
 

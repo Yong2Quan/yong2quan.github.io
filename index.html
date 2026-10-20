@@ -3,7 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Thomas Yong — Preview C · Kinetic + Rotating Work Wall</title>
+<title>Thomas Yong — Data Engineer &amp; AI Engineer, Singapore</title>
+<meta name="description" content="Data engineer in Singapore building data platforms that hold up in production, and the applied AI that runs on them.">
+<meta name="author" content="Thomas Yong">
+<meta name="theme-color" content="#09090B">
+<link rel="canonical" href="https://yong2quan.github.io/">
+<link rel="icon" href="assets/avatar.jpg">
+<link rel="apple-touch-icon" href="assets/avatar.jpg">
+
+<!-- link previews (LinkedIn, Slack, iMessage, X) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yong2quan.github.io/">
+<meta property="og:title" content="Thomas Yong — Data Engineer &amp; AI Engineer">
+<meta property="og:description" content="Data engineer in Singapore building data platforms that hold up in production, and the applied AI that runs on them.">
+<meta property="og:image" content="https://yong2quan.github.io/assets/avatar.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thomas Yong — Data Engineer &amp; AI Engineer">
+<meta name="twitter:description" content="Data engineer in Singapore building data platforms that hold up in production, and the applied AI that runs on them.">
+<meta name="twitter:image" content="https://yong2quan.github.io/assets/avatar.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -36,7 +54,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:70;padding:18px 0;background:lin
 .navr a:hover{color:var(--accent)}
 
 header{min-height:92vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:110px 0 60px;z-index:2}
-h1{font-size:clamp(2.6rem,8.5vw,7.4rem);line-height:.95;font-weight:700;letter-spacing:-.045em;margin-bottom:32px}
+h1{font-size:clamp(2.4rem,6.4vw,5.6rem);line-height:.96;font-weight:700;letter-spacing:-.045em;margin-bottom:30px}
 h1 .scr{color:var(--accent)}
 .lede{max-width:52ch;color:var(--muted);font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.7;margin-bottom:42px}
 .btns{display:flex;gap:14px;flex-wrap:wrap}
@@ -60,6 +78,26 @@ h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;m
 .chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
 
 .eyebrow{color:var(--accent);margin-bottom:26px}
+
+/* hero: text left, portrait right */
+.herogrid{display:grid;grid-template-columns:1.46fr .54fr;gap:50px;align-items:center;width:min(1180px,90vw)}
+.heroport{display:flex;justify-content:center}
+.portrait{
+  position:relative;margin:0;
+  width:min(100%,300px);aspect-ratio:1;
+  border-radius:26px;overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:0 34px 80px -26px rgba(0,0,0,.95);
+  animation:bob 7s ease-in-out infinite;
+}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.portrait::after{
+  content:"";position:absolute;inset:0;border-radius:26px;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(214,255,63,.16);
+  transition:box-shadow .4s;
+}
+.portrait:hover::after{box-shadow:inset 0 0 0 1px rgba(214,255,63,.55)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 .worklede{color:var(--muted);line-height:1.7;max-width:56ch;margin-top:-10px}
 
 /* ============ ROTATING WORK WALL ============ */
@@ -108,7 +146,6 @@ h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;m
 .screen.tall .cap{min-width:232px}
 .cap .t{font-size:13.5px;font-weight:500;letter-spacing:-.01em;display:block}
 .cnote{display:block;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:4px;letter-spacing:.03em}
-.cap .k{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;white-space:nowrap}
 .screen:hover .cap .t{color:var(--accent)}
 
 .stagefoot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
@@ -175,6 +212,9 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 
 @media(max-width:900px){
   .cgrid{grid-template-columns:1fr;gap:40px}
+  .herogrid{grid-template-columns:1fr;gap:36px}
+  .heroport{justify-content:flex-start}
+  .portrait{width:min(55%,200px)}
 }
 @media(max-width:800px){
   .abt{grid-template-columns:1fr;gap:34px}
@@ -203,7 +243,8 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
   </div>
 </div></nav>
 
-<header id="top"><div class="wrap">
+<header id="top"><div class="wrap herogrid">
+ <div class="herotext">
   <p class="eyebrow mono">Data Engineer &#183; AI Engineer &#183; Singapore</p>
   <h1>I build the<br>data platforms<br><span class="scr" id="scr">AI</span> runs on.</h1>
   <p class="lede">I turn ambiguous requirements into data platforms that hold up in production, then put them to work in applied AI. Right now that means government clients in Singapore.</p>
@@ -211,6 +252,12 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
     <a class="btn fill" href="#work">View projects &#8599;</a>
     <a class="btn" href="#contact">Get in touch</a>
   </div>
+ </div>
+ <div class="heroport">
+   <figure class="portrait">
+     <img src="assets/avatar.jpg" alt="Thomas Yong" width="460" height="460" fetchpriority="high">
+   </figure>
+ </div>
 </div></header>
 
 <section id="about"><div class="wrap">
@@ -251,7 +298,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 </div>
   <div class="stage" id="stage"></div>
   <div class="wrap"><div class="stagefoot">
-    <span class="hint mono">Drag, scroll or hover to <b>browse</b></span>
+    <span class="hint mono">Drag to <b>browse</b> &#183; hover to pause</span>
     <div class="ctrls">
       <button class="ctrl" id="slower">&#8722; Slower</button>
       <button class="ctrl" id="pause">Pause</button>
@@ -310,7 +357,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 
 <div class="wrap"><footer>
   <span class="mono">&copy; 2026 Thomas Yong</span>
-  <span class="mono">Astro &#183; GitHub Pages</span>
+  <span class="mono">Hand-built &#183; GitHub Pages</span>
 </footer></div>
 
 <script>
@@ -325,11 +372,6 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
   ];
 
   var N=screens.length,stage=document.getElementById("stage"),nodes=[];
-  var keys="abcdefghijklmnopqrstuvwxyz0123456789";
-  function key(i){
-    var s="";for(var k=0;k<4;k++){s+=keys[(i*7+k*13+3)%keys.length];}
-    return "#"+s+"-"+String(i).padStart(4,"0")+"/"+String(N).padStart(2,"0");
-  }
 
   screens.forEach(function(s,i){
     var a=document.createElement("a");
@@ -340,7 +382,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
         (s.tall?"":'<div class="bar"><i></i><i></i><i></i><span class="url">'+s.url+'</span></div>')+
         '<img class="shot" src="'+s.img+'" alt="'+s.t+'" loading="lazy">'+
       '</div>'+
-      '<div class="cap"><span><span class="t">'+s.t+'</span><span class="cnote">'+s.note+'</span></span><span class="k">'+key(i)+'</span></div>';
+      '<div class="cap"><span><span class="t">'+s.t+'</span><span class="cnote">'+s.note+'</span></span></div>';
     /* stable per-item vertical offset + scale so nothing jitters */
     var y=[-0.14,0.12,-0.08,0.28,-0.18,0.12][i%6];
     var size=s.tall?0.98:[1,0.94,0.97,0.88][i%4];
@@ -407,10 +449,17 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
   stage.addEventListener("pointerup",up);
   stage.addEventListener("pointercancel",up);
 
-  /* wheel nudges it sideways instead of scrolling past */
+  /* Only sideways intent steers the wall: a trackpad swipe, or shift+wheel.
+     A plain vertical wheel is how people scroll the page, so reacting to it
+     made the carousel lurch every time the section crossed the viewport.
+     Deltas are clamped because momentum scrolling fires huge values. */
   stage.addEventListener("wheel",function(e){
-    var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
-    phase+=d*0.0016;render();
+    var sideways=Math.abs(e.deltaX)>Math.abs(e.deltaY);
+    if(!sideways&&!e.shiftKey){return;}
+    var d=sideways?e.deltaX:e.deltaY;
+    d=Math.max(-50,Math.min(50,d));
+    phase+=d*0.0009;
+    render();
   },{passive:true});
 
   /* controls */
