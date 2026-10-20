@@ -35,7 +35,8 @@ html{scroll-behavior:smooth}
 body{
   background:var(--bg);color:var(--fg);
   font-family:'Space Grotesk',-apple-system,"Segoe UI",sans-serif;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:clip;
 }
 body::before{
   content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;
@@ -64,6 +65,7 @@ h1 .scr{color:var(--accent)}
 .btn.fill:hover{color:#09090B;box-shadow:0 10px 32px rgba(214,255,63,.22)}
 
 section{padding:110px 0;position:relative;z-index:2}
+#work{padding:0}
 .lbl{display:flex;align-items:center;gap:12px;color:var(--accent);margin-bottom:34px}
 .lbl::after{content:"";flex:1;height:1px;background:var(--line)}
 h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;margin-bottom:28px}
@@ -101,19 +103,34 @@ h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;m
 .worklede{color:var(--muted);line-height:1.7;max-width:56ch;margin-top:-10px}
 
 /* ============ ROTATING WORK WALL ============ */
+/* The track is taller than the viewport; the pin sticks to the top while the
+   page scrolls past it, and that scroll distance drives the carousel. Native
+   scrolling throughout, so nothing is hijacked. */
+.worktrack{position:relative}
+.workpin{
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;justify-content:center;gap:14px;
+}
+.workhead h2{margin-bottom:8px}
+.workhead .worklede{margin-top:0}
+.progress{width:170px;height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--accent);transition:width .1s linear}
 #work{padding-bottom:40px}
 .stage{
-  position:relative;height:min(64vh,500px);
+  position:relative;height:min(68vh,560px);
   perspective:40rem;perspective-origin:50% 45%;
-  overflow:hidden;cursor:grab;
-  margin-top:10px;
+  overflow:hidden;
+  margin-top:4px;
+  /* --zoom is driven by scroll: the stage eases up to full size as the
+     section pins, so arriving at Projects feels like zooming into it */
+  transform:scale(var(--zoom,1));
+  transform-origin:50% 45%;
   -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
           mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
 }
-.stage.drag{cursor:grabbing}
 .screen{
   position:absolute;top:50%;left:50%;
-  width:clamp(260px,34vw,470px);
+  width:min(560px,40vw,78vh);
   transform:
     rotateY(calc(var(--p) * -20deg))
     translate3d(
@@ -125,7 +142,7 @@ h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;m
   will-change:transform,opacity;
   text-decoration:none;display:block;
 }
-.screen.tall{width:clamp(126px,14vw,180px)}
+.screen.tall{width:min(215px,24vh,46vw)}
 .frame{
   background:var(--panel);border:1px solid var(--line);border-radius:10px;
   overflow:hidden;box-shadow:0 26px 60px -18px rgba(0,0,0,.85);
@@ -151,9 +168,6 @@ h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;m
 .stagefoot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
 .hint{color:var(--muted);display:flex;align-items:center;gap:9px}
 .hint b{color:var(--accent);font-weight:400}
-.ctrls{display:flex;gap:8px}
-.ctrl{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:100px;padding:8px 15px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;transition:.25s}
-.ctrl:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ============ CONTACT ============ */
 .cgrid{display:grid;grid-template-columns:1fr 1.15fr;gap:70px;align-items:start}
@@ -291,20 +305,22 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
   </div>
 </div></section>
 
-<section id="work"><div class="wrap">
-  <div class="lbl mono">02 / Projects</div>
-  <h2 class="rv">Personal side projects.</h2>
-  <p class="worklede">Off the clock mini projects that I find fun.</p>
-</div>
-  <div class="stage" id="stage"></div>
-  <div class="wrap"><div class="stagefoot">
-    <span class="hint mono">Drag to <b>browse</b> &#183; hover to pause</span>
-    <div class="ctrls">
-      <button class="ctrl" id="slower">&#8722; Slower</button>
-      <button class="ctrl" id="pause">Pause</button>
-      <button class="ctrl" id="faster">Faster &#43;</button>
+<section id="work">
+  <!-- tall track: the page scrolls through it while the stage stays pinned -->
+  <div class="worktrack" id="worktrack">
+    <div class="workpin">
+      <div class="wrap workhead">
+        <div class="lbl mono">02 / Projects</div>
+        <h2>Personal side projects.</h2>
+        <p class="worklede">Off the clock mini projects that I find fun.</p>
+      </div>
+      <div class="stage" id="stage"></div>
+      <div class="wrap"><div class="stagefoot">
+        <span class="hint mono">Keep scrolling to <b>browse</b></span>
+        <div class="progress" aria-hidden="true"><span id="workbar"></span></div>
+      </div></div>
     </div>
-  </div></div>
+  </div>
 </section>
 
 <section id="contact"><div class="wrap">
@@ -357,13 +373,13 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 
 <div class="wrap"><footer>
   <span class="mono">&copy; 2026 Thomas Yong</span>
-  <span class="mono">Hand-built &#183; GitHub Pages</span>
+  <span class="mono">GitHub Pages</span>
 </footer></div>
 
 <script>
 (function(){
   /* ---------- screens: live captures of each project, one per project ----------
-     Makan Roulette is a browser app, so it gets a desktop frame.
+     Makan Roulette is a browser app, so it gets a webpage frame.
      Expense Tracker is an Expo / React Native app, so it gets a phone frame.
   */
   var screens=[
@@ -385,7 +401,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
       '<div class="cap"><span><span class="t">'+s.t+'</span><span class="cnote">'+s.note+'</span></span></div>';
     /* stable per-item vertical offset + scale so nothing jitters */
     var y=[-0.14,0.12,-0.08,0.28,-0.18,0.12][i%6];
-    var size=s.tall?0.98:[1,0.94,0.97,0.88][i%4];
+    var size=1;
     a.style.setProperty("--y",y);
     a.style.setProperty("--size",size);
     stage.appendChild(a);nodes.push(a);
@@ -396,9 +412,14 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
      project sitting dead centre. Smootherstep between them means a screen
      rests in the middle, then glides on — which reads far better than a
      constant drift when there are only a couple of projects to show. */
-  var phase=0, segPerSec=1/4.2, t=0, paused=false, hovering=false, last=performance.now();
-  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(reduce){segPerSec=0;}
+  var phase=0, t=0;
+  var track=document.getElementById("worktrack");
+  var bar=document.getElementById("workbar");
+
+  /* The track is sized from the project count: one viewport to read the
+     section, plus roughly three-quarters of a viewport of scroll per
+     project to move through it. Add a project and it grows on its own. */
+  track.style.height=(100+N*75)+"vh";
 
   function frac(x){return x-Math.floor(x);}
   function smoother(x){return x*x*x*(x*(6*x-15)+10);}
@@ -419,59 +440,64 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
     }
   }
 
-  function loop(now){
-    var dt=Math.min((now-last)/1000,0.05);last=now;
-    if(!paused&&!hovering){phase+=segPerSec*dt;}
-    render();requestAnimationFrame(loop);
+  /* Page scroll position through the track IS the animation timeline.
+     0 at the moment the pin sticks, 1 when the track is scrolled out. */
+  function scrollProgress(){
+    var span=track.offsetHeight-window.innerHeight;
+    if(span<=0){return 0;}
+    var p=-track.getBoundingClientRect().top/span;
+    return Math.max(0,Math.min(1,p));
   }
-  render();requestAnimationFrame(loop);
 
-  /* hover: hold the wall still so you can actually look at a screen */
-  nodes.forEach(function(n){
-    n.addEventListener("mouseenter",function(){hovering=true;});
-    n.addEventListener("mouseleave",function(){hovering=false;});
-  });
-
-  /* drag to scrub */
-  var down=false,sx=0,sp=0;
-  stage.addEventListener("pointerdown",function(e){
-    down=true;sx=e.clientX;sp=phase;stage.classList.add("drag");stage.setPointerCapture(e.pointerId);
-  });
-  stage.addEventListener("pointermove",function(e){
-    if(!down){return;}
-    phase=sp-(e.clientX-sx)/Math.max(stage.clientWidth,1)*1.6;render();
-  });
-  function up(e){
-    if(!down){return;}
-    down=false;stage.classList.remove("drag");
-    try{stage.releasePointerCapture(e.pointerId);}catch(err){}
+  /* The stage is a flex item, so on short viewports it shrinks below its
+     declared height. Sizing cards from vh alone let them overflow it, so
+     measure the stage and derive the widths from what is actually there. */
+  function sizeCards(){
+    var sh=stage.clientHeight,vw=window.innerWidth;
+    nodes.forEach(function(n,i){
+      var tall=screens[i].tall;
+      var ratio=tall?754/352:0.625;            /* image height / width */
+      var img=n.querySelector(".shot");
+      /* everything that is not the image: browser chrome bar + caption.
+         Measured rather than assumed, so restyling cannot silently
+         reintroduce an overflow. */
+      var overhead=n.offsetHeight-img.offsetHeight;
+      if(!(overhead>20)){overhead=tall?50:80;}
+      var w=Math.min(tall?215:560,(sh-overhead)/ratio,vw*(tall?0.62:0.82));
+      n.style.width=Math.max(90,Math.round(w))+"px";
+    });
   }
-  stage.addEventListener("pointerup",up);
-  stage.addEventListener("pointercancel",up);
 
-  /* Only sideways intent steers the wall: a trackpad swipe, or shift+wheel.
-     A plain vertical wheel is how people scroll the page, so reacting to it
-     made the carousel lurch every time the section crossed the viewport.
-     Deltas are clamped because momentum scrolling fires huge values. */
-  stage.addEventListener("wheel",function(e){
-    var sideways=Math.abs(e.deltaX)>Math.abs(e.deltaY);
-    if(!sideways&&!e.shiftKey){return;}
-    var d=sideways?e.deltaX:e.deltaY;
-    d=Math.max(-50,Math.min(50,d));
-    phase+=d*0.0009;
-    render();
-  },{passive:true});
+  var queued=false;
+  function onScroll(){
+    if(queued){return;}
+    queued=true;
+    requestAnimationFrame(function(){
+      queued=false;
+      var p=scrollProgress();
 
-  /* controls */
-  document.getElementById("pause").addEventListener("click",function(){
-    paused=!paused;this.textContent=paused?"Play":"Pause";
-  });
-  document.getElementById("faster").addEventListener("click",function(){
-    segPerSec=Math.min(segPerSec*1.5,1.2);
-  });
-  document.getElementById("slower").addEventListener("click",function(){
-    segPerSec=Math.max(segPerSec/1.5,0.05);
-  });
+      /* First slice of the track is the zoom-in: the stage eases from
+         slightly small up to full size. The rest drives the carousel, so
+         you arrive, settle into the section, then browse it. */
+      var ENTER=0.16;
+      var zin=smoother(Math.min(p/ENTER,1));
+      stage.style.setProperty("--zoom",(0.86+0.14*zin).toFixed(4));
+      stage.style.opacity=(0.35+0.65*zin).toFixed(3);
+
+      var browse=p<=ENTER?0:(p-ENTER)/(1-ENTER);
+      /* N-1 so the last project lands centred rather than looping back */
+      phase=browse*Math.max(N-1,0.0001);
+      render();
+      bar.style.width=(p*100).toFixed(1)+"%";
+    });
+  }
+
+  addEventListener("scroll",onScroll,{passive:true});
+  /* twice: the first pass lets the overhead be measured, the second uses it */
+  function fit(){sizeCards();sizeCards();}
+  addEventListener("resize",function(){fit();onScroll();});
+  addEventListener("load",function(){fit();onScroll();});
+  fit();onScroll();
 
   /* ---------- contact form ----------
      GitHub Pages serves static files only, so the page itself cannot send
