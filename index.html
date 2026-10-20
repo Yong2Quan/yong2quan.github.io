@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thomas Yong — Preview C · Kinetic + Rotating Work Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090B; --fg:#EDEDE8; --muted:#7A7A75; --line:#232326;
+  --accent:#D6FF3F; --panel:#121214;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:'Space Grotesk',-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+.wrap{width:min(1180px,90vw);margin:0 auto}
+a{color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:70;padding:18px 0;background:linear-gradient(to bottom,var(--bg) 60%,transparent)}
+.navin{display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.02em}
+.blip{width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 12px var(--accent)}
+.navr{display:flex;gap:24px;align-items:center}
+.navr a{text-decoration:none;color:var(--muted);transition:color .25s}
+.navr a:hover{color:var(--accent)}
+
+header{min-height:92vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:110px 0 60px;z-index:2}
+h1{font-size:clamp(2.6rem,8.5vw,7.4rem);line-height:.95;font-weight:700;letter-spacing:-.045em;margin-bottom:32px}
+h1 .scr{color:var(--accent)}
+.lede{max-width:52ch;color:var(--muted);font-size:clamp(1rem,1.6vw,1.22rem);line-height:1.7;margin-bottom:42px}
+.btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:100px;text-decoration:none;border:1px solid var(--line);transition:.3s;background:transparent}
+.btn.fill{background:var(--accent);color:#09090B;border-color:var(--accent);font-weight:500}
+.btn:hover{transform:translateY(-3px);border-color:var(--accent);color:var(--accent)}
+.btn.fill:hover{color:#09090B;box-shadow:0 10px 32px rgba(214,255,63,.22)}
+
+section{padding:110px 0;position:relative;z-index:2}
+.lbl{display:flex;align-items:center;gap:12px;color:var(--accent);margin-bottom:34px}
+.lbl::after{content:"";flex:1;height:1px;background:var(--line)}
+h2{font-size:clamp(1.9rem,4.6vw,3.3rem);font-weight:700;letter-spacing:-.035em;margin-bottom:28px}
+
+.abt{display:grid;grid-template-columns:1.4fr 1fr;gap:64px;align-items:start}
+.abt p{color:var(--muted);line-height:1.8;margin-bottom:20px;font-size:1.04rem}
+.abt p strong{color:var(--fg);font-weight:500}
+.stack{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px}
+.stack h4{margin-bottom:16px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;font-family:'JetBrains Mono',monospace}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);border-radius:7px;padding:7px 12px;font-size:12.5px;color:var(--muted);transition:.25s;font-family:'JetBrains Mono',monospace}
+.chip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+
+.eyebrow{color:var(--accent);margin-bottom:26px}
+.worklede{color:var(--muted);line-height:1.7;max-width:56ch;margin-top:-10px}
+
+/* ============ ROTATING WORK WALL ============ */
+#work{padding-bottom:40px}
+.stage{
+  position:relative;height:min(64vh,500px);
+  perspective:40rem;perspective-origin:50% 45%;
+  overflow:hidden;cursor:grab;
+  margin-top:10px;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
+          mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent);
+}
+.stage.drag{cursor:grabbing}
+.screen{
+  position:absolute;top:50%;left:50%;
+  width:clamp(260px,34vw,470px);
+  transform:
+    rotateY(calc(var(--p) * -20deg))
+    translate3d(
+      calc(var(--p) * (44vw + 100%) - 50%),
+      calc(var(--y) * 50% - 50%),
+      calc(var(--p) * var(--p) * -5rem)
+    )
+    scale(var(--size));
+  will-change:transform,opacity;
+  text-decoration:none;display:block;
+}
+.screen.tall{width:clamp(126px,14vw,180px)}
+.frame{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;box-shadow:0 26px 60px -18px rgba(0,0,0,.85);
+  transition:border-color .3s,box-shadow .3s;
+}
+.screen:hover .frame{border-color:var(--accent);box-shadow:0 26px 70px -14px rgba(214,255,63,.26)}
+.bar{display:flex;align-items:center;gap:6px;padding:8px 11px;border-bottom:1px solid var(--line);background:#0E0E10}
+.bar i{width:8px;height:8px;border-radius:50%;background:#2E2E33;display:block}
+.bar .url{
+  margin-left:7px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.shot{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top center;background:#141416}
+.screen.tall .shot{aspect-ratio:352/754;object-fit:contain;background:#EEF0F4}
+.screen.tall .bar{display:none}
+.cap{display:flex;justify-content:space-between;gap:10px;margin-top:11px;align-items:baseline}
+/* the phone card is narrower than its own caption, so let the text run wider */
+.screen.tall .cap{min-width:232px}
+.cap .t{font-size:13.5px;font-weight:500;letter-spacing:-.01em;display:block}
+.cnote{display:block;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:4px;letter-spacing:.03em}
+.cap .k{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;white-space:nowrap}
+.screen:hover .cap .t{color:var(--accent)}
+
+.stagefoot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+.hint{color:var(--muted);display:flex;align-items:center;gap:9px}
+.hint b{color:var(--accent);font-weight:400}
+.ctrls{display:flex;gap:8px}
+.ctrl{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:100px;padding:8px 15px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;transition:.25s}
+.ctrl:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ============ CONTACT ============ */
+.cgrid{display:grid;grid-template-columns:1fr 1.15fr;gap:70px;align-items:start}
+.cleft h2{font-size:clamp(2.1rem,5.4vw,4rem);margin-bottom:20px}
+.csub{color:var(--muted);line-height:1.75;max-width:40ch;margin-bottom:34px}
+
+.iconrow{display:flex;gap:14px;margin-bottom:28px}
+.ico{
+  position:relative;width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--line);display:grid;place-items:center;
+  color:var(--fg);transition:transform .3s cubic-bezier(.16,1,.3,1),border-color .3s,background .3s,color .3s;
+}
+.ico svg{width:21px;height:21px;fill:currentColor;transition:transform .3s}
+.ico:hover{background:var(--accent);border-color:var(--accent);color:#09090B;transform:translateY(-5px)}
+.ico:hover svg{transform:scale(1.08)}
+.ico:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tip{
+  position:absolute;top:-30px;left:50%;transform:translateX(-50%) translateY(4px);
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  padding:4px 9px;color:var(--fg);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;font-size:9.5px;
+}
+.ico:hover .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.cform{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:block;margin-bottom:16px}
+.flab{display:block;color:var(--muted);margin-bottom:8px}
+.flab i{color:var(--accent);font-style:normal}
+.cform input,.cform textarea{
+  width:100%;background:#0B0B0D;border:1px solid var(--line);border-radius:9px;
+  padding:13px 15px;color:var(--fg);font-family:inherit;font-size:15px;
+  transition:border-color .25s,box-shadow .25s;resize:vertical;
+}
+.cform input::placeholder,.cform textarea::placeholder{color:#4A4A4E}
+.cform input:focus,.cform textarea:focus{
+  outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(214,255,63,.12);
+}
+.cform input.bad,.cform textarea.bad{border-color:#FF5C5C;box-shadow:0 0 0 3px rgba(255,92,92,.12)}
+#f-trap{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.send{
+  width:100%;margin-top:6px;padding:15px;border:none;border-radius:100px;
+  background:var(--accent);color:#09090B;font-family:inherit;font-weight:600;font-size:15px;
+  cursor:pointer;transition:transform .25s,box-shadow .25s,opacity .25s;
+}
+.send:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px rgba(214,255,63,.25)}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.fstatus{margin-top:14px;min-height:16px;color:var(--muted);line-height:1.6;text-transform:none;letter-spacing:.04em}
+.fstatus.ok{color:var(--accent)}
+.fstatus.err{color:#FF8080}
+.fstatus a{color:var(--accent)}
+footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:var(--muted);position:relative;z-index:2}
+
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.rv.in{opacity:1;transform:none}
+
+@media(max-width:900px){
+  .cgrid{grid-template-columns:1fr;gap:40px}
+}
+@media(max-width:800px){
+  .abt{grid-template-columns:1fr;gap:34px}
+  .frow{grid-template-columns:1fr;gap:0}
+  .cform{padding:22px}
+  .navr a:not(:last-child){display:none}
+  .stage{height:62vh}
+  .screen{width:clamp(220px,66vw,330px)}
+  .screen.tall{width:clamp(120px,30vw,165px)}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none !important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap navin">
+  <span class="logo"><span class="blip"></span>Thomas Yong</span>
+  <div class="navr">
+    <a href="#about" class="mono">About</a>
+    <a href="#work" class="mono">Projects</a>
+    <a href="#contact" class="mono">Contact</a>
+    <a href="https://www.linkedin.com/in/thomasyong97/" class="mono" target="_blank" rel="noopener" style="color:var(--accent)">LinkedIn &#8599;</a>
+  </div>
+</div></nav>
+
+<header id="top"><div class="wrap">
+  <p class="eyebrow mono">Data Engineer &#183; AI Engineer &#183; Singapore</p>
+  <h1>I build the<br>data platforms<br><span class="scr" id="scr">AI</span> runs on.</h1>
+  <p class="lede">I turn ambiguous requirements into data platforms that hold up in production, then put them to work in applied AI. Right now that means government clients in Singapore.</p>
+  <div class="btns">
+    <a class="btn fill" href="#work">View projects &#8599;</a>
+    <a class="btn" href="#contact">Get in touch</a>
+  </div>
+</div></header>
+
+<section id="about"><div class="wrap">
+  <div class="lbl mono">01 / About</div>
+  <div class="abt">
+    <div class="rv">
+      <h2>Between the business<br>and the build.</h2>
+      <p>Good work starts with <strong>why</strong>. I sit close to the people using what I build — analysts, stakeholders, whoever is on the other side of the problem — and design around the questions they are actually trying to answer, not the ones that are convenient to model.</p>
+      <p>Most of my attention now goes to applied AI: putting LLMs where they genuinely earn their place, and being straight about where they do not. In practice that means caring about evaluation, retrieval quality, latency and cost per call — the unglamorous parts that decide whether a demo survives contact with real users. The data platform underneath is what makes any of it trustworthy, which is why I like working at both ends.</p>
+      <p>Everything goes through version control and CI/CD, so deployments stay predictable and boring. And I learn fastest by building things myself.</p>
+    </div>
+    <div class="stack rv">
+      <h4>Core</h4>
+      <div class="chips">
+        <span class="chip">Python</span><span class="chip">PySpark</span><span class="chip">SQL</span>
+      </div>
+      <h4 style="margin-top:22px">Cloud &amp; data platforms</h4>
+      <div class="chips">
+        <span class="chip">AWS</span><span class="chip">Databricks</span><span class="chip">Snowflake</span>
+      </div>
+      <h4 style="margin-top:22px">Ways of working</h4>
+      <div class="chips">
+        <span class="chip">Git</span><span class="chip">GitLab</span><span class="chip">CI/CD</span>
+      </div>
+      <h4 style="margin-top:22px">Also build with</h4>
+      <div class="chips">
+        <span class="chip">JavaScript</span><span class="chip">React</span>
+        <span class="chip">Expo</span><span class="chip">ServiceNow</span>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="work"><div class="wrap">
+  <div class="lbl mono">02 / Projects</div>
+  <h2 class="rv">Personal side projects.</h2>
+  <p class="worklede">Off the clock mini projects that I find fun.</p>
+</div>
+  <div class="stage" id="stage"></div>
+  <div class="wrap"><div class="stagefoot">
+    <span class="hint mono">Drag, scroll or hover to <b>browse</b></span>
+    <div class="ctrls">
+      <button class="ctrl" id="slower">&#8722; Slower</button>
+      <button class="ctrl" id="pause">Pause</button>
+      <button class="ctrl" id="faster">Faster &#43;</button>
+    </div>
+  </div></div>
+</section>
+
+<section id="contact"><div class="wrap">
+  <div class="lbl mono">03 / Contact</div>
+  <div class="cgrid">
+
+    <div class="cleft rv">
+      <h2>Say something.</h2>
+      <p class="csub">Always happy to connect &#8212; about data platforms, applied AI, or anything you are building. Do reach out on any of these, or send a note below and it lands straight in my inbox.</p>
+
+      <div class="iconrow">
+        <a class="ico" href="mailto:thomasyong97@gmail.com" aria-label="Email Thomas Yong" title="Email">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <span class="tip mono">Email</span>
+        </a>
+        <a class="ico" href="https://www.linkedin.com/in/thomasyong97/" target="_blank" rel="noopener" aria-label="LinkedIn profile" title="LinkedIn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+          <span class="tip mono">LinkedIn</span>
+        </a>
+        <a class="ico" href="https://github.com/Yong2Quan" target="_blank" rel="noopener" aria-label="GitHub profile" title="GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+          <span class="tip mono">GitHub</span>
+        </a>
+      </div>
+    </div>
+
+    <form class="cform rv" id="cform" novalidate>
+      <div class="frow">
+        <label class="field">
+          <span class="flab mono">Name <i>*</i></span>
+          <input type="text" name="name" id="f-name" placeholder="Your name" autocomplete="name" required>
+        </label>
+        <label class="field">
+          <span class="flab mono">Email <i>*</i></span>
+          <input type="email" name="email" id="f-email" placeholder="you@example.com" autocomplete="email" required>
+        </label>
+      </div>
+      <label class="field">
+        <span class="flab mono">Message <i>*</i></span>
+        <textarea name="message" id="f-msg" rows="6" placeholder="What is up?" required></textarea>
+      </label>
+      <!-- honeypot: bots fill this, humans never see it -->
+      <input type="text" name="_gotcha" id="f-trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit" class="send" id="f-send">Send message</button>
+      <p class="fstatus mono" id="fstatus" role="status" aria-live="polite"></p>
+    </form>
+
+  </div>
+</div></section>
+
+<div class="wrap"><footer>
+  <span class="mono">&copy; 2026 Thomas Yong</span>
+  <span class="mono">Astro &#183; GitHub Pages</span>
+</footer></div>
+
+<script>
+(function(){
+  /* ---------- screens: live captures of each project, one per project ----------
+     Makan Roulette is a browser app, so it gets a desktop frame.
+     Expense Tracker is an Expo / React Native app, so it gets a phone frame.
+  */
+  var screens=[
+    {img:"shots/makan-simi.png",            t:"Makan Roulette",  note:"Vanilla JS, no build step, no dependencies",   url:"yong2quan.github.io/makan-simi", href:"https://yong2quan.github.io/makan-simi/",     tall:false},
+    {img:"shots/expense-tracker-app.png",    t:"Expense Tracker", note:"Expo / React Native + Flask API", url:"mobile",                         href:"https://yong2quan.github.io/expense-tracker/",tall:true}
+  ];
+
+  var N=screens.length,stage=document.getElementById("stage"),nodes=[];
+  var keys="abcdefghijklmnopqrstuvwxyz0123456789";
+  function key(i){
+    var s="";for(var k=0;k<4;k++){s+=keys[(i*7+k*13+3)%keys.length];}
+    return "#"+s+"-"+String(i).padStart(4,"0")+"/"+String(N).padStart(2,"0");
+  }
+
+  screens.forEach(function(s,i){
+    var a=document.createElement("a");
+    a.className="screen"+(s.tall?" tall":"");
+    a.href=s.href;a.target="_blank";a.rel="noopener";
+    a.innerHTML=
+      '<div class="frame">'+
+        (s.tall?"":'<div class="bar"><i></i><i></i><i></i><span class="url">'+s.url+'</span></div>')+
+        '<img class="shot" src="'+s.img+'" alt="'+s.t+'" loading="lazy">'+
+      '</div>'+
+      '<div class="cap"><span><span class="t">'+s.t+'</span><span class="cnote">'+s.note+'</span></span><span class="k">'+key(i)+'</span></div>';
+    /* stable per-item vertical offset + scale so nothing jitters */
+    var y=[-0.14,0.12,-0.08,0.28,-0.18,0.12][i%6];
+    var size=s.tall?0.98:[1,0.94,0.97,0.88][i%4];
+    a.style.setProperty("--y",y);
+    a.style.setProperty("--size",size);
+    stage.appendChild(a);nodes.push(a);
+  });
+
+  /* ---------- the conveyor ---------- */
+  /* phase counts project-slots, not raw distance: each whole number is one
+     project sitting dead centre. Smootherstep between them means a screen
+     rests in the middle, then glides on — which reads far better than a
+     constant drift when there are only a couple of projects to show. */
+  var phase=0, segPerSec=1/4.2, t=0, paused=false, hovering=false, last=performance.now();
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){segPerSec=0;}
+
+  function frac(x){return x-Math.floor(x);}
+  function smoother(x){return x*x*x*(x*(6*x-15)+10);}
+  function syncT(){
+    var b=Math.floor(phase);
+    t=(b+smoother(phase-b))/N-0.5;
+  }
+
+  function render(){
+    syncT();
+    for(var i=0;i<N;i++){
+      /* raw 0..1 -> p 1..-1 : screens travel right -> centre -> left */
+      var p=1-2*frac(i/N-t);
+      nodes[i].style.setProperty("--p",p.toFixed(4));
+      var edge=1-Math.abs(p);
+      nodes[i].style.opacity=Math.max(0,Math.min(1,edge*2.6)).toFixed(3);
+      nodes[i].style.zIndex=Math.round(edge*100);
+    }
+  }
+
+  function loop(now){
+    var dt=Math.min((now-last)/1000,0.05);last=now;
+    if(!paused&&!hovering){phase+=segPerSec*dt;}
+    render();requestAnimationFrame(loop);
+  }
+  render();requestAnimationFrame(loop);
+
+  /* hover: hold the wall still so you can actually look at a screen */
+  nodes.forEach(function(n){
+    n.addEventListener("mouseenter",function(){hovering=true;});
+    n.addEventListener("mouseleave",function(){hovering=false;});
+  });
+
+  /* drag to scrub */
+  var down=false,sx=0,sp=0;
+  stage.addEventListener("pointerdown",function(e){
+    down=true;sx=e.clientX;sp=phase;stage.classList.add("drag");stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener("pointermove",function(e){
+    if(!down){return;}
+    phase=sp-(e.clientX-sx)/Math.max(stage.clientWidth,1)*1.6;render();
+  });
+  function up(e){
+    if(!down){return;}
+    down=false;stage.classList.remove("drag");
+    try{stage.releasePointerCapture(e.pointerId);}catch(err){}
+  }
+  stage.addEventListener("pointerup",up);
+  stage.addEventListener("pointercancel",up);
+
+  /* wheel nudges it sideways instead of scrolling past */
+  stage.addEventListener("wheel",function(e){
+    var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+    phase+=d*0.0016;render();
+  },{passive:true});
+
+  /* controls */
+  document.getElementById("pause").addEventListener("click",function(){
+    paused=!paused;this.textContent=paused?"Play":"Pause";
+  });
+  document.getElementById("faster").addEventListener("click",function(){
+    segPerSec=Math.min(segPerSec*1.5,1.2);
+  });
+  document.getElementById("slower").addEventListener("click",function(){
+    segPerSec=Math.max(segPerSec/1.5,0.05);
+  });
+
+  /* ---------- contact form ----------
+     GitHub Pages serves static files only, so the page itself cannot send
+     email: that needs an SMTP server and credentials, and anything shipped to
+     the browser is readable by everyone. A relay service holds those
+     credentials instead, so the browser just POSTs to it and the relay mails
+     the message on to MAIL_TO. No mail app involved, no account needed.
+
+     FormSubmit requires one activation step: the FIRST message sent from the
+     live site triggers a confirmation email to MAIL_TO. Click the link in it
+     once and every later message arrives straight in the inbox.
+
+     To hide the address from page source, activate first, then swap
+     ENDPOINT for the alias FormSubmit gives you:
+       https://formsubmit.co/ajax/el/<your-alias>
+  */
+  var MAIL_TO="thomasyong97@gmail.com";
+  var FORM_ENDPOINT="https://formsubmit.co/ajax/"+MAIL_TO;
+
+  var form=document.getElementById("cform");
+  var status=document.getElementById("fstatus");
+  var sendBtn=document.getElementById("f-send");
+
+  function setStatus(msg,cls){
+    status.className="fstatus mono"+(cls?" "+cls:"");
+    status.innerHTML=msg;
+  }
+  function valid(el){
+    var v=el.value.trim();
+    if(!v){return false;}
+    if(el.type==="email"){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);}
+    return true;
+  }
+
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+
+    /* honeypot: a filled trap means a bot, so pretend everything is fine */
+    if(document.getElementById("f-trap").value){return;}
+
+    var fields=[document.getElementById("f-name"),document.getElementById("f-email"),document.getElementById("f-msg")];
+    var bad=false;
+    fields.forEach(function(el){
+      var ok=valid(el);
+      el.classList.toggle("bad",!ok);
+      if(!ok){bad=true;}
+    });
+    if(bad){
+      setStatus("Please fill in all three fields with a valid email.","err");
+      fields.find(function(el){return !valid(el);}).focus();
+      return;
+    }
+
+    var name=fields[0].value.trim(),email=fields[1].value.trim(),msg=fields[2].value.trim();
+
+    sendBtn.disabled=true;sendBtn.textContent="Sending...";
+    setStatus("");
+
+    fetch(FORM_ENDPOINT,{
+      method:"POST",
+      headers:{"Content-Type":"application/json",Accept:"application/json"},
+      body:JSON.stringify({
+        name:name,
+        email:email,
+        message:msg,
+        _subject:"Website enquiry from "+name,
+        _template:"table",
+        _captcha:"false"
+      })
+    }).then(function(r){
+      return r.json().catch(function(){return {};}).then(function(data){
+        return {ok:r.ok,data:data};
+      });
+    }).then(function(res){
+      /* FormSubmit answers 200 even when it refuses the message (unactivated
+         form, blocked origin, rate limit), flagging it as success:"false" in
+         the body. Checking only r.ok would tell the visitor it sent when it
+         did not, so the body flag is the one that actually decides. */
+      if(!res.ok||String(res.data.success)==="false"){
+        throw new Error(res.data.message||"HTTP error");
+      }
+      form.reset();
+      setStatus("Thanks &#8212; your message is on its way. I will get back to you shortly.","ok");
+    }).catch(function(err){
+      /* last resort only: the relay was unreachable, so offer the mail client */
+      var subject=encodeURIComponent("Website enquiry from "+name);
+      var body=encodeURIComponent(msg+"\n\n-- \n"+name+"\n"+email);
+      setStatus("Could not reach the mail service. <a href='mailto:"+MAIL_TO+"?subject="+subject+"&body="+body+"'>Send it by email instead &#8599;</a>","err");
+    }).then(function(){
+      sendBtn.disabled=false;sendBtn.textContent="Send message";
+    });
+  });
+
+  /* clear the error ring as soon as they start fixing it */
+  ["f-name","f-email","f-msg"].forEach(function(id){
+    document.getElementById(id).addEventListener("input",function(){
+      this.classList.remove("bad");
+    });
+  });
+
+  /* ---------- reveals ---------- */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}});
+  },{threshold:.12});
+  document.querySelectorAll(".rv").forEach(function(n){io.observe(n);});
+})();
+</script>
+</body>
+</html>
