@@ -383,6 +383,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
      Expense Tracker is an Expo / React Native app, so it gets a phone frame.
   */
   var screens=[
+    {img:"shots/groundwork.png",            t:"Groundwork",      note:"LLM vs RAG vs MCP agent, scored",              url:"",                               href:"https://github.com/Yong2Quan/groundwork",     tall:false},
     {img:"shots/makan-simi.png",            t:"Makan Roulette",  note:"Vanilla JS, no build step, no dependencies",   url:"yong2quan.github.io/makan-simi", href:"https://yong2quan.github.io/makan-simi/",     tall:false},
     {img:"shots/expense-tracker-app.png",    t:"Expense Tracker", note:"Expo / React Native + Flask API", url:"mobile",                         href:"https://yong2quan.github.io/expense-tracker/",tall:true}
   ];
@@ -395,7 +396,8 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
     a.href=s.href;a.target="_blank";a.rel="noopener";
     a.innerHTML=
       '<div class="frame">'+
-        (s.tall?"":'<div class="bar"><i></i><i></i><i></i><span class="url">'+s.url+'</span></div>')+
+        /* no url means it is not a web page, so it gets no browser chrome */
+        (s.tall||!s.url?"":'<div class="bar"><i></i><i></i><i></i><span class="url">'+s.url+'</span></div>')+
         '<img class="shot" src="'+s.img+'" alt="'+s.t+'" loading="lazy">'+
       '</div>'+
       '<div class="cap"><span><span class="t">'+s.t+'</span><span class="cnote">'+s.note+'</span></span></div>';
